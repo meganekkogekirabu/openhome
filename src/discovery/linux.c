@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "discovery.h"
+#include "../discovery.h"
 
 #define SERVICES_CAPACITY 8
 
