@@ -8,6 +8,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/simple-watch.h>
+#include <avahi-common/strlst.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,33 +27,39 @@ struct _discovery_state_t
 
 typedef struct _discovery_state_t _discovery_state_t;
 
-accessory_t *
-_accessory_parse_service(const char *txt, uint16_t port, const char *address)
+static const char *
+_get_txt(AvahiStringList *txt, const char *key)
 {
-  char id_buf[32] = {0};
-  char name_buf[64] = {0};
-  accessory_status_t status = ACCESSORY_STATUS_UNPAIRED;
+  AvahiStringList *n = avahi_string_list_find(txt, key);
+  if (!n) return NULL;
+  const char *s = (const char *) avahi_string_list_get_text(n);
+  return strchr(s, '=') + 1;
+}
 
-  char *id = strdup(id_buf);
-  char *name = strdup(name_buf);
+accessory_t *
+_accessory_new(AvahiStringList *txt, uint16_t port, const char *address)
+{
+  const char *id = _get_txt(txt, "id");
+  const char *name = _get_txt(txt, "md");
+  const char *sf = _get_txt(txt, "sf");
 
-  // C is so beautiful! :p
-  sscanf(strstr(txt, "sf="), "sf=%d", &status);
-  sscanf(strstr(txt, "id="), "id=%31[^\"]", id);
-  sscanf(strstr(txt, "md="), "md=%63[^\"]", name);
+  if (!id || !name || !sf)
+    return NULL;
 
   accessory_t *a = malloc(sizeof(*a));
-  a->id = id;
-  a->name = name;
+  if (!a) return NULL;
+
+  a->id = strdup(id);
+  a->name = strdup(name);
   a->address = address;
-  a->status = status;
+  a->status = (accessory_status_t) (sf[0] - '0');
   a->port = port;
 
   return a;
 }
 
 void
-all_services_push(all_services_t *self, accessory_t *acc)
+_all_services_push(all_services_t *self, accessory_t *acc)
 {
   if (self->count == self->capacity)
   {
@@ -106,12 +113,10 @@ resolve_callback(AvahiServiceResolver *r,
       break;
 
     case AVAHI_RESOLVER_FOUND:
-      char a[AVAHI_ADDRESS_STR_MAX], *t;
+      char a[AVAHI_ADDRESS_STR_MAX];
       avahi_address_snprint(a, sizeof(a), address);
-      t = avahi_string_list_to_string(txt);
-      accessory_t *acc = _accessory_parse_service(t, port, strdup(a));
-      all_services_push(state->all, acc);
-      avahi_free(t);
+      accessory_t *acc = _accessory_new(txt, port, strdup(a));
+      _all_services_push(state->all, acc);
       break;
   }
 
