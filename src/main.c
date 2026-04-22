@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Madeleine Choi
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,6 +12,9 @@ int
 main(void)
 {
   all_services_t *all = all_services_discover();
+  
+  if (!all)
+    return EXIT_FAILURE;
 
   for (size_t i = 0; i < all->count; i++)
   {
