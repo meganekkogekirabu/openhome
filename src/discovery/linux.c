@@ -31,8 +31,9 @@ static const char *
 _get_txt(AvahiStringList *txt, const char *key)
 {
   AvahiStringList *n = avahi_string_list_find(txt, key);
-  if (!n) return NULL;
-  const char *s = (const char *) avahi_string_list_get_text(n);
+  if (!n)
+    return NULL;
+  const char *s = (const char *)avahi_string_list_get_text(n);
   return strchr(s, '=') + 1;
 }
 
@@ -47,12 +48,13 @@ _accessory_new(AvahiStringList *txt, uint16_t port, const char *address)
     return NULL;
 
   accessory_t *a = malloc(sizeof(*a));
-  if (!a) return NULL;
+  if (!a)
+    return NULL;
 
   a->id = strdup(id);
   a->name = strdup(name);
   a->address = address;
-  a->status = (accessory_status_t) (sf[0] - '0');
+  a->status = (accessory_status_t)(sf[0] - '0');
   a->port = port;
 
   return a;
@@ -225,6 +227,6 @@ cleanup:
     avahi_simple_poll_free(state->simple_poll);
 
   free(state);
-  
+
   return all;
 }

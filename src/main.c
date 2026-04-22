@@ -26,10 +26,29 @@ cmd_list(void)
   if (!all)
     return EXIT_FAILURE;
 
+  #define MAC_W 20
+  #define NAME_W 20
+  #define ADDR_W 15
+  #define PORT_W 6
+  #define PAIR_W 5
+
+  printf("%-*s %-*s %-*s %-*s %-*s\n\n",
+         MAC_W, "MAC",
+         NAME_W, "NAME",
+         ADDR_W, "ADDR",
+         PORT_W, "PORT",
+         PAIR_W, "PAIR?");
+
   for (size_t i = 0; i < all->count; i++)
   {
-    accessory_t *accessory = all->items[i];
-    printf("%s\n", accessory->name);
+    accessory_t *acc = all->items[i];
+
+    printf("%-*s %-*s %-*s %-*hu %-*s\n",
+           MAC_W, acc->id,
+           NAME_W, acc->name,
+           ADDR_W, acc->address,
+           PORT_W, acc->port,
+           PAIR_W, (acc->status - 1) ? "YES" : "NO");
   }
 
   free(all);
