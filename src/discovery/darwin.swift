@@ -44,12 +44,12 @@ final class DiscoveryDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDe
       return String(data: data, encoding: .utf8)
     }
 
-    let idStr = string("id")
-    let nameStr = string("md")
-    let sfString = string("sf")
+    let id = string("id")
+    let name = string("md")
+    let sf = string("sf")
 
     let status: accessory_status_t =
-      sfString
+      sf
       .flatMap { UInt32($0) }
       .map { accessory_status_t($0) }
       ?? ACCESSORY_STATUS_UNPAIRED
@@ -78,8 +78,8 @@ final class DiscoveryDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDe
     let acc = UnsafeMutablePointer<accessory_t>.allocate(capacity: 1)
     acc.initialize(
       to: accessory_t(
-        id: strdup(idStr ?? ""),
-        name: strdup(nameStr ?? ""),
+        id: strdup(id ?? ""),
+        name: strdup(name ?? ""),
         address: strdup(host ?? ""),
         status: status,
         port: UInt16(port),
