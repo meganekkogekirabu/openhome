@@ -28,7 +28,7 @@ cmd_list(void)
 
   #define MAC_W 20
   #define NAME_W 20
-  #define ADDR_W 15
+  #define ADDR_W 30
   #define PORT_W 6
   #define PAIR_W 5
 
